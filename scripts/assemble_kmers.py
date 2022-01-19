@@ -6,6 +6,7 @@ assemble into contigs based on simple frequency cut off
 '''
 
 import sys
+import argparse
 from kmer_module import *
 
 def walk_forwards(contig,kmer_length,kmer_counts):
@@ -51,49 +52,51 @@ def extend_sequence(seq,kmer_counts):
 
     return None
 
-#provide usage information
-if sys.argv[1] in ['-h','-H','--help','-?']:
-    print("Usage: assemble_kmers.py <kmer_count_filename> <minimum_count>")
-    print("results are printed to stdout")
-    exit()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
 
-input_file = sys.argv[1]
-min_count = int(sys.argv[2])
+    parser.add_argument('--min-count', type=int,required=True, help='Minimum kmer count filter')
+    parser.add_argument('--kmer-counts', type=str, required=True, help='File containung kmer counts')
 
-kmer_counts = {}
+    args = parser.parse_args()
 
-with open(input_file) as f:
-    for line in f:
-        column = line.strip().split()
-        kmer = column[0]
-        rev = column[1]
-        count = int(column[2])
+    input_file = args.kmer_counts
+    min_count = args.min_count
 
-        if count < min_count: continue
+    kmer_counts = {}
 
-        kmer_counts[kmer] = count
+    with open(input_file) as f:
+        for line in f:
+            column = line.strip().split()
+            kmer = column[0]
+            rev = column[1]
+            count = int(column[2])
 
-contig_list = []
+            if count < min_count: continue
 
-while len(kmer_counts) > 0:
-    #pick a seed kmer from the remaining kmers
-    seed_kmer = next(iter(kmer_counts))
-    kmer_length = len(seed_kmer)
-    contig = seed_kmer
-    del kmer_counts[seed_kmer]
+            kmer_counts[kmer] = count
 
-    #walk the contig forward through the kmer graph
-    contig = walk_forwards(contig,kmer_length,kmer_counts)
+    contig_list = []
 
-    #reverse compliment the contig to allow walking backwards
-    contig = reverse_compliment(contig)
+    while len(kmer_counts) > 0:
+        #pick a seed kmer from the remaining kmers
+        seed_kmer = next(iter(kmer_counts))
+        kmer_length = len(seed_kmer)
+        contig = seed_kmer
+        del kmer_counts[seed_kmer]
 
-    #walk the (now reversed) contig forward through the kmer graph again
-    contig = walk_forwards(contig,kmer_length,kmer_counts)
+        #walk the contig forward through the kmer graph
+        contig = walk_forwards(contig,kmer_length,kmer_counts)
 
-    #append completed contig to final list
-    contig_list.append(contig)
+        #reverse compliment the contig to allow walking backwards
+        contig = reverse_compliment(contig)
 
-#print contigs
-for seq_counter,contig in enumerate(contig_list):
-    print("contig" + str(seq_counter) + ' ' + contig)
+        #walk the (now reversed) contig forward through the kmer graph again
+        contig = walk_forwards(contig,kmer_length,kmer_counts)
+
+        #append completed contig to final list
+        contig_list.append(contig)
+
+    #print contigs
+    for seq_counter,contig in enumerate(contig_list):
+        print("contig" + str(seq_counter) + ' ' + contig)

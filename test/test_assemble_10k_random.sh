@@ -14,7 +14,7 @@ generate_reads.py ${BASENAME}.flat 20000 100 0.01 0.01 0.5 > ${BASENAME}_reads.f
 count_kmers.py ${BASENAME}_reads.flat 23 > ${BASENAME}_counts
 
 #assemble the kmers into contigs
-assemble_kmers.py ${BASENAME}_counts 30 > ${BASENAME}_assembly.flat
+assemble_kmers.py --kmer-counts=${BASENAME}_counts --min-count=30 > ${BASENAME}_assembly.flat
 
 #generate a dot plot comparing kmer positions in original and assembled sequence
 compare_kmers.py ${BASENAME}_assembly.flat ${BASENAME}.flat 10 > ${BASENAME}_dots
