@@ -1,3 +1,5 @@
 /tmp
 /build
 *.pyc
+/lit
+/test_data
