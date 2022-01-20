@@ -1,0 +1,6 @@
+#ifndef __ROBERTVI_KMERZ_KMERZ_H__
+#define __ROBERTVI_KMERZ_KMERZ_H__
+
+
+
+#endif //__ROBERTVI_KMERZ_KMERZ_H__
