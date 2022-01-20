@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
+set -eu
 
 BASENAME=10k
 
-mkdir -p random_10k && cd random_10k
+mkdir -p tmp/random_10k && cd tmp/random_10k && pwd
 
 #create a simple random "genome" sequence
 random_sequence.py seq 1 10000 0 > ${BASENAME}.flat
@@ -19,4 +20,4 @@ assemble_kmers.py --kmer-counts=${BASENAME}_counts --min-count=30 > ${BASENAME}_
 #generate a dot plot comparing kmer positions in original and assembled sequence
 compare_kmers.py ${BASENAME}_assembly.flat ${BASENAME}.flat 10 > ${BASENAME}_dots
 
-cd -
+cd - > /dev/null
