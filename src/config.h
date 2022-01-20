@@ -10,9 +10,12 @@ namespace kmerz
         public:
             KmerzConfig(int _argc,char**_argv);
             virtual ~KmerzConfig();
+        private:
             int findOption(const std::string&option,const std::string & alt="");
             std::string getOption(const std::string&option,const std::string & alt="");
-        private:
+            void parseArgs();
+            void showOptions();
+
             //command line options
             int minKmerCount;
             std::string inputFile;

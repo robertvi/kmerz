@@ -17,6 +17,21 @@ KmerzConfig::KmerzConfig(int _argc,char**_argv)
     outputFile = "-"; //stdout
     minKmerCount = 0; //no filtering
 
+    try
+    {
+        //read in any command line options
+        parseArgs();
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "Usage: " << usage << std::endl;
+        exit(0);
+    }
+}
+
+void KmerzConfig::parseArgs()
+{
     if(findOption("--help","-h"))
     {
         std::cout << "Usage: " << usage << std::endl;
@@ -30,7 +45,14 @@ KmerzConfig::KmerzConfig(int _argc,char**_argv)
 
     if(findOption("--min-count","-m"))
     {
-        minKmerCount = std::stoi( getOption("--min-count","-m") );
+        try
+        {
+            minKmerCount = std::stoi( getOption("--min-count","-m") );
+        }
+        catch(const std::exception &e)
+        {
+            throw std::runtime_error("Error: --min-count must be an integer");
+        }
     }
 
     if(findOption("--input","-i"))
@@ -41,7 +63,10 @@ KmerzConfig::KmerzConfig(int _argc,char**_argv)
     {
         throw std::runtime_error("Error: --input option is mandatory");
     }
+}
 
+void KmerzConfig::showOptions()
+{
     std::cout << "outputFile=" << outputFile << std::endl;
     std::cout << "inputFile="  << inputFile  << std::endl;
     std::cout << "minKmerCount=" << minKmerCount << std::endl;
