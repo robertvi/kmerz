@@ -11,4 +11,5 @@ export KMERZDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && c
 export PATH=${KMERZDIR}/scripts:${PATH}
 export PATH=${KMERZDIR}/test:${PATH}
 
+#test python prototype pipeline
 test_assemble_10k_random.sh
