@@ -3,3 +3,6 @@
 *.pyc
 /lit
 /test_data
+/src/*.o
+/src/*.d
+/kmerz
