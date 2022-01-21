@@ -47,9 +47,12 @@ namespace kmerz
 
             //load all kmers into the graph sequentially
             void generateGraph();
+
+            //trace path(s) through all edges until no more left
+            void generatePaths(const std::string&);
         private:
             //lookup or generate a node
-            void generateNode(uint64_t psfix,bool&revcmp,EulerNode*&node);
+            void generateNode(uint64_t psfix,EulerNode*&node,bool&revcmp);
 
             //simple list of canonical kmers before they go into the graph
             std::vector< uint64_t > kmer_list;

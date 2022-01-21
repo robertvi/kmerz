@@ -9,8 +9,11 @@ int main(int argc,char**argv)
     //load and min-count filter kmers from file
     kmerz::EulerGraph euler(config.getInputFile(),config.getMinKmerCount());
 
-    //generate graph from kmer list, emptying the list as we go
+    //generate graph from kmer list
     euler.generateGraph();
+
+    //generate assembled sequence(s) by walking through the graph
+    euler.generatePaths(config.getOutputFile());
 
     return 0;
 }

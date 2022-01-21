@@ -89,7 +89,7 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
 }
 
 //lookup existing or generate new node for a given prefix or suffix
-void EulerGraph::generateNode(uint64_t psfix,bool&revcmp,EulerNode*&node)
+void EulerGraph::generateNode(uint64_t psfix,EulerNode*&node,bool&revcmp)
 {
     //reverse complement the sequence if not already canonical
     revcmp = psfix2canonical(&psfix);
@@ -111,6 +111,7 @@ void EulerGraph::generateNode(uint64_t psfix,bool&revcmp,EulerNode*&node)
         node = node_it->second;
     }
 }
+
 //load all kmers into the graph sequentially
 //generate the associated mode and edge objects
 void EulerGraph::generateGraph()
@@ -122,20 +123,22 @@ void EulerGraph::generateGraph()
 
         std::cout << kmer << std::endl;
 
-        //generate prefix as all but the last 4 bits
+        //generate prefix as all but the last/least significant 4 bits
         uint64_t prefix = (kmer & (PSFIX_MASK << 2)) >> 2;
 
-        //generate suffix as all but the first base (2 bits per base)
+        //generate suffix as all but the first/most significant 4 bits
         uint64_t suffix = kmer & PSFIX_MASK;
 
+        //capture everything needed to create the edge object
         bool prefix_revcmp,suffix_revcmp;
         EulerNode*prefix_node = nullptr;
         EulerNode*suffix_node = nullptr;
 
-        //lookup or generate node for prefix and suffic sequences
+        //lookup or generate node object for prefix and suffic sequences
         //convert to reverse complement if not already canonical
-        generateNode(prefix,prefix_revcmp,prefix_node);//sets revcmp and node
-        generateNode(suffix,suffix_revcmp,suffix_node);
+        //sets *_revcmp and *_node
+        generateNode(prefix,prefix_node,prefix_revcmp);
+        generateNode(suffix,suffix_node,suffix_revcmp);
 
         //create associated edge
         EulerEdge*edge = new EulerEdge(prefix_node,suffix_node,prefix_revcmp,suffix_revcmp);
@@ -144,6 +147,22 @@ void EulerGraph::generateGraph()
         suffix_node->addIncoming(edge);
         graph_edges.push_back(edge);
     }
+}
+
+//follow paths through the graph emitting the sequence to the outputfile
+void EulerGraph::generatePaths(const std::string&outputFile)
+{
+    std::ofstream ofs;
+    ofs.open(outputFile, std::ios::binary);
+
+    while(graph_edges.size())
+    {
+        //pick a seed edge from the list of remaining edges
+        EulerEdge*seed = graph_edges.back();
+        graph_edges.pop_back();
+    }
+
+    ofs.close();
 }
 
 EulerEdge::EulerEdge(EulerNode*pfix_node,EulerNode*sfix_node,bool pfix_revcmp,bool sfix_revcmp)
