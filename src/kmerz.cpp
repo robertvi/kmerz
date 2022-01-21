@@ -6,9 +6,18 @@
 namespace kmerz
 {
 
+//how many bases in a kmer, ie what is the value of 'k'
+//32 is the maximum possible using a uint64_t
+//but k is usually chosen to be odd to prevent the reverse compliment of
+//the kmer equaling itself
 const uint64_t KMER_SIZE=31;
+
+//bit mask set to 1 for all bits used to represent a kmer
 const uint64_t KMER_MASK=( ((uint64_t)1)<<(KMER_SIZE*2) )-1;
-const uint64_t KMER_FIRSTOFFSET=(KMER_SIZE-1)*2;
+
+//bit shift required to shift the two least significant bits
+//to the position of the two most significant bits of the kmer
+const uint64_t KMER_SHIFT=(KMER_SIZE-1)*2;
 
 EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
 {
@@ -74,7 +83,9 @@ void EulerGraph::generateGraph()
     while(kmer_list.size())
     {
         uint64_t kmer = kmer_list.back();
-        kmer_list.pop_back();
+        kmer_list.pop_back();//destroy as we go along to save memory
+
+        std::cout << kmer << std::endl;
     }
 }
 
@@ -92,22 +103,22 @@ uint64_t string2uint64t(const std::string&seq)
             case 'A':
             case 'a':
                 fkmer = ((fkmer << 2) +  uint64_t(0)) & KMER_MASK;
-                rkmer =  (rkmer >> 2) + (uint64_t(3) << KMER_FIRSTOFFSET);
+                rkmer =  (rkmer >> 2) + (uint64_t(3) << KMER_SHIFT);
                 break;
             case 'C':
             case 'c':
                 fkmer = ((fkmer << 2) +  uint64_t(1)) & KMER_MASK;
-                rkmer =  (rkmer >> 2) + (uint64_t(2) << KMER_FIRSTOFFSET);
+                rkmer =  (rkmer >> 2) + (uint64_t(2) << KMER_SHIFT);
                 break;
             case 'G':
             case 'g':
                 fkmer = ((fkmer << 2) +  uint64_t(2)) & KMER_MASK;
-                rkmer =  (rkmer >> 2) + (uint64_t(1) << KMER_FIRSTOFFSET);
+                rkmer =  (rkmer >> 2) + (uint64_t(1) << KMER_SHIFT);
                 break;
             case 'T':
             case 't':
                 fkmer = ((fkmer << 2) +  uint64_t(3)) & KMER_MASK;
-                rkmer =  (rkmer >> 2) + (uint64_t(0) << KMER_FIRSTOFFSET);
+                rkmer =  (rkmer >> 2) + (uint64_t(0) << KMER_SHIFT);
                 break;
             default:
                 throw std::runtime_error("Error: invalid character in kmer: " + seq[p]);
