@@ -33,6 +33,11 @@ const uint64_t PSFIX_SHIFT=(PSFIX_SIZE-1)*2;
 //bases indexed by their 2-bit representation
 const std::string BASES = "TGCA";
 
+//load kmer sequences and counts from file
+//format is kmer sequence, reverse complement of kmer sequence (ignored) and kmer count
+//separated by spaces
+//only the first of the two kmer sequences is used, converted to canonical if not already
+//count is only used for simple min-mount filtering then discarded
 EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
 {
     std::ifstream ifs;
@@ -54,9 +59,9 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
         {
             throw std::runtime_error("Error: failed to read forward kmer on line: " + std::to_string(line_ctr));
         }
-        if(fwd_kmer.length() != 31)
+        if(fwd_kmer.length() != KMER_SIZE)
         {
-            throw std::runtime_error("Error: forward kmer not 31 bases on line: " + std::to_string(line_ctr) + ":"+fwd_kmer);
+            throw std::runtime_error("Error: forward kmer not "+std::to_string(KMER_SIZE)+" bases on line: " + std::to_string(line_ctr) + ":"+fwd_kmer);
         }
 
         ifs >> rev_kmer;
@@ -64,9 +69,9 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
         {
             throw std::runtime_error("Error: failed to read reverse kmer on line: " + std::to_string(line_ctr));
         }
-        if(rev_kmer.length() != 31)
+        if(rev_kmer.length() != KMER_SIZE)
         {
-            throw std::runtime_error("Error: reverse kmer not 31 bases on line: " + std::to_string(line_ctr) + ":"+fwd_kmer);
+            throw std::runtime_error("Error: reverse kmer not "+std::to_string(KMER_SIZE)+" bases on line: " + std::to_string(line_ctr) + ":"+fwd_kmer);
         }
 
         ifs >> count;
@@ -79,6 +84,7 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
             throw std::runtime_error("Error: invalid kmer count on line: " + std::to_string(line_ctr) + ": count was " + std::to_string(count));
         }
 
+        //filter out low coverage kmers
         if(count < minKmerCount) continue;
 
         //convert kmer to uint64_t representation
