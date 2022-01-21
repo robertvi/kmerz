@@ -5,6 +5,7 @@
 
 namespace kmerz
 {
+    
 const uint64_t KMER_SIZE=31;
 const uint64_t KMER_MASK=( ((uint64_t)1)<<(KMER_SIZE*2) )-1;
 const uint64_t KMER_FIRSTOFFSET=(KMER_SIZE-1)*2;
