@@ -30,6 +30,9 @@ const uint64_t PSFIX_MASK=( ((uint64_t)1)<<(PSFIX_SIZE*2) )-1;
 //to the position of the two most significant bits of the (k-1)mer
 const uint64_t PSFIX_SHIFT=(PSFIX_SIZE-1)*2;
 
+//bases indexed by their 2-bit representation
+const std::string BASES = "TGCA";
+
 EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
 {
     std::ifstream ifs;
@@ -158,8 +161,41 @@ void EulerGraph::generatePaths(const std::string&outputFile)
     while(graph_edges.size())
     {
         //pick a seed edge from the list of remaining edges
-        EulerEdge*seed = graph_edges.back();
-        graph_edges.pop_back();
+        std::list< EulerEdge* >::iterator list_it = graph_edges.begin();
+        EulerEdge*seed = *list_it;
+
+        //initialise the path state to "forward strand"
+        bool forward_strand = true;
+
+        //initialise the sequence to the prefix sequence
+        std::string forward_path = seed->getPrefixSequence();
+
+        EulerEdge*current = seed;
+
+        while(true)
+        {
+            //mark current edge as visited
+            current->setVisited();
+
+            //remove current edge from list of potential future seeds
+            graph_edges.erase(list_it);
+
+            if(forward_strand)
+            {
+                //append last base of suffix sequence
+                forward_path.append(1, seed->getLastSuffixBase());
+
+                //proceed to suffix node
+            }
+            else
+            {
+                //append first base of prefix
+                forward_path.append(1, seed->getFirstPrefixBase());
+
+                //proceed to prefix node
+            }
+        }
+
     }
 
     ofs.close();
@@ -168,6 +204,34 @@ void EulerGraph::generatePaths(const std::string&outputFile)
 EulerEdge::EulerEdge(EulerNode*pfix_node,EulerNode*sfix_node,bool pfix_revcmp,bool sfix_revcmp)
 :prefix_node(pfix_node),suffix_node(sfix_node),prefix_revcmp(pfix_revcmp),suffix_revcmp(sfix_revcmp)
 {}
+
+//get first base of prefix, adjusted for reverse complementing
+char EulerEdge::getFirstPrefixBase()
+{
+    uint64_t prefix = prefix_node->getSequence();
+    if(prefix_revcmp) prefix =  revcmpPsfix(prefix);
+    return BASES.at((prefix >> PSFIX_SHIFT) & 0x3);
+}
+
+//get last base of suffix, adjusted for reverse complementing
+char EulerEdge::getLastSuffixBase()
+{
+    uint64_t suffix = suffix_node->getSequence();
+    if(suffix_revcmp) suffix =  revcmpPsfix(suffix);
+    return BASES.at(suffix & 0x3);
+}
+
+//get prefix sequence adjusted for reverse complementing
+std::string EulerEdge::getPrefixSequence()
+{
+    uint64_t prefix = prefix_node->getSequence();
+
+    //reverse complement the prefix if required
+    if(prefix_revcmp) prefix = revcmpPsfix(prefix);
+
+    //convert to string
+    return psfix2string(prefix);
+}
 
 EulerNode::EulerNode(uint64_t psfix)
 :sequence(psfix)
@@ -222,7 +286,7 @@ uint64_t string2uint64t(const std::string&seq)
 
     //return canonical version
     if(fkmer <= rkmer) return fkmer;
-    else                return rkmer;
+    else               return rkmer;
 }
 
 //ensure psfix (prefix or suffix) is canonical, return true if it needed reverse complementing
@@ -233,7 +297,7 @@ bool psfix2canonical(uint64_t*psfix)
     for(auto p=0; p<PSFIX_SIZE; p++)
     {
         //rev_fix: grows from the left (MSB)
-        //complement the two least significant bits, shift then to the start
+        //complement the two least significant bits, shift them to the start
         rev_fix = (rev_fix >> 2) + ((~fwd_fix & 0x3) << PSFIX_SHIFT);
 
         //consume the used bits
@@ -247,6 +311,39 @@ bool psfix2canonical(uint64_t*psfix)
     *psfix = rev_fix;
 
     return true;
+}
+
+//return reverse complement of the k-1 mer
+uint64_t revcmpPsfix(uint64_t psfix)
+{
+    uint64_t rev_fix = 0;
+    for(auto p=0; p<PSFIX_SIZE; p++)
+    {
+        //rev_fix: grows from the left (MSB)
+        //complement the two least significant bits of psfix, shift them to the start
+        rev_fix = (rev_fix >> 2) + ((~psfix & 0x3) << PSFIX_SHIFT);
+
+        //consume the used bits
+        psfix >>= 2;
+    }
+
+    return rev_fix;
+}
+
+//convert k-1 mer to string
+std::string psfix2string(uint64_t psfix)
+{
+    std::string seq = "";
+
+    for(auto p=0; p<PSFIX_SIZE; p++)
+    {
+        seq.append( 1, BASES.at((psfix >> PSFIX_SHIFT) & 0x3) );
+
+        //consume the used bits
+        psfix <<= 2;
+    }
+
+    return seq;
 }
 
 } //namespace kmerz
