@@ -31,7 +31,8 @@ const uint64_t PSFIX_MASK=( ((uint64_t)1)<<(PSFIX_SIZE*2) )-1;
 const uint64_t PSFIX_SHIFT=(PSFIX_SIZE-1)*2;
 
 //bases indexed by their 2-bit representation
-const std::string BASES = "TGCA";
+//const std::string BASES = "TGCA";
+const std::string BASES = "ACGT";
 
 //load kmer sequences and counts from file
 //format is kmer sequence, reverse complement of kmer sequence (ignored) and kmer count
