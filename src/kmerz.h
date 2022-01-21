@@ -13,15 +13,15 @@ namespace kmerz
     class EulerEdge
     {
         public:
-
+            EulerEdge(EulerNode*,EulerNode*,bool,bool);
         private:
-            EulerNode*prefix; //node containing the first K-1 bases of this kmer
-            EulerNode*suffix; //node containing the last K-1 bases of this kmer
+            EulerNode*prefix_node; //node containing the first K-1 bases of this kmer
+            EulerNode*suffix_node; //node containing the last K-1 bases of this kmer
 
             //true if node's sequence must be reverse complemented to recover
             //original kmer sequence in it's canonical form
-            bool prefix_reversed;
-            bool suffix_reversed;
+            bool prefix_revcmp;
+            bool suffix_revcmp;
 
             bool visited; //true if this edge was visited already during graph walk
     };
@@ -29,10 +29,13 @@ namespace kmerz
     class EulerNode
     {
         public:
-
+            //create node from canonical prefix/suffix sequence
+            EulerNode(uint64_t psfix);
+            void addIncoming(EulerEdge*);
+            void addOutgoing(EulerEdge*);
         private:
-            std::list<EulerEdge*>incoming; //edges with this node as their suffix
-            std::list<EulerEdge*>outgoing; //edges with this node as their prefix
+            std::list< EulerEdge* > incoming; //edges with this node as their suffix
+            std::list< EulerEdge* > outgoing; //edges with this node as their prefix
             uint64_t sequence; //canonical form of node's sequence
     };
 
@@ -45,13 +48,24 @@ namespace kmerz
             //load all kmers into the graph sequentially
             void generateGraph();
         private:
+            //lookup or generate a node
+            void generateNode(uint64_t psfix,bool&revcmp,EulerNode*&node);
+
             //simple list of canonical kmers before they go into the graph
             std::vector< uint64_t > kmer_list;
 
-            //graph nodes keyed by their canonical sequence
+            //graph edges
+            std::list< EulerEdge* > graph_edges;
+
+            //graph nodes keyed by their canonical k-1 base sequence
             std::unordered_map< uint64_t, EulerNode* > graph_nodes;
     };
 
+    //convert string of bases to bits in a uint64_t
     uint64_t string2uint64t(const std::string&);
+
+    //convert the prefix/suffix k-1 mer into canonical form
+    //if not already, return true if change was made
+    bool psfix2canonical(uint64_t*psfix);
 } //namespace kmerz
 #endif //__ROBERTVI_KMERZ_KMERZ_H__
