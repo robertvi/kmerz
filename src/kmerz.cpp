@@ -5,7 +5,7 @@
 
 namespace kmerz
 {
-    
+
 const uint64_t KMER_SIZE=31;
 const uint64_t KMER_MASK=( ((uint64_t)1)<<(KMER_SIZE*2) )-1;
 const uint64_t KMER_FIRSTOFFSET=(KMER_SIZE-1)*2;
@@ -62,10 +62,20 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
         uint64_t canonical_kmer = string2uint64t(fwd_kmer.c_str());
         kmer_list.push_back( canonical_kmer );
 
-        std::cout << fwd_kmer << " " << canonical_kmer << " " << count << std::endl;
+        //std::cout << fwd_kmer << " " << canonical_kmer << " " << count << std::endl;
     }
 
     ifs.close();
+}
+
+//load all kmers into the graph sequentially
+void EulerGraph::generateGraph()
+{
+    while(kmer_list.size())
+    {
+        uint64_t kmer = kmer_list.back();
+        kmer_list.pop_back();
+    }
 }
 
 //converts to uint64_t and ensures its canonical
