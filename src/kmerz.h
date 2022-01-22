@@ -23,6 +23,7 @@ namespace kmerz
 
             //get sequence preadjusted for reverse complement status
             std::string getPrefixSequence();
+            std::string getMiddleSequence();
             uint64_t getSequence(){return sequence;};
             char getFirstPrefixBase();
             char getLastSuffixBase();
@@ -62,11 +63,14 @@ namespace kmerz
             //load kmer sequences into kmer_list with min-count filtering
             EulerGraph(const std::string&inputFile,int minKmerCount);
 
+            //load kmer sequences from in memory vector of strings
+            EulerGraph(std::vector< std::string >&);
+
             //load all kmers into the graph sequentially
             void generateGraph();
 
             //trace path(s) through all edges until no more left
-            void generatePaths(const std::string&);
+            void generatePaths(std::vector< std::string > &contig_list);
         private:
             //lookup or generate a node
             void generateNode(uint64_t psfix,EulerNode*&node,bool&revcmp);
@@ -86,6 +90,9 @@ namespace kmerz
     //convert string of bases to bits in a uint64_t
     uint64_t string2uint64t(const std::string&);
 
+    //convert uint64_t kmer into string
+    std::string uint64t2string(uint64_t kmer);
+
     //convert the prefix/suffix k-1 mer into canonical form
     //if not already, return true if change was made
     bool psfix2canonical(uint64_t*psfix);
@@ -95,5 +102,8 @@ namespace kmerz
 
     //convert k-1 mer to string
     std::string psfix2string(uint64_t psfix);
+
+    //reverse complement a string
+    std::string reverseComplement(const std::string&);
 } //namespace kmerz
 #endif //__ROBERTVI_KMERZ_KMERZ_H__

@@ -33,6 +33,16 @@ const uint64_t PSFIX_SHIFT=(PSFIX_SIZE-1)*2;
 //bases indexed by their 2-bit representation
 //const std::string BASES = "TGCA";
 const std::string BASES = "ACGT";
+const std::string COMPLEMENT_BASES = "TGCA";
+
+EulerGraph::EulerGraph(std::vector< std::string >&input_list)
+{
+    for(auto it=input_list.begin(); it!=input_list.end(); it++)
+    {
+        uint64_t canonical_kmer = string2uint64t((*it).c_str());
+        kmer_list.push_back( canonical_kmer );
+    }
+}
 
 //load kmer sequences and counts from file
 //format is kmer sequence, reverse complement of kmer sequence (ignored) and kmer count
@@ -240,11 +250,8 @@ std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iter
 }
 
 //follow paths through the graph emitting the sequence to the outputfile
-void EulerGraph::generatePaths(const std::string&outputFile)
+void EulerGraph::generatePaths(std::vector< std::string > &contig_list)
 {
-    std::ofstream ofs;
-    ofs.open(outputFile, std::ios::binary);
-
     int counter=0;
     while(graph_edges.size())
     {
@@ -252,23 +259,22 @@ void EulerGraph::generatePaths(const std::string&outputFile)
         //walkPath removes visited edges from this list as it goes
         auto map_it = graph_edges.begin();
 
+        //generate middle sequence of seed kmer
+        std::string mid_seq = map_it->second->getMiddleSequence();
+
         //walk path forward from seed kmer suffix
         std::string fwd_seq = walkPath(map_it,true);
 
         //generate reverse path from kmer prefix
         std::string rev_seq = walkPath(map_it,false);
 
+        //entire contig
+        std::string contig = reverseComplement(rev_seq) + mid_seq + fwd_seq;
+
         counter += 1;
 
-        //todo:merge the two sequences here with the middle of the seed kmer
-
-        ofs << ">fwdseq" << std::to_string(counter) << std::endl;
-        ofs << fwd_seq << std::endl;
-        ofs << ">revseq" << std::to_string(counter) << std::endl;
-        ofs << rev_seq << std::endl;
+        contig_list.push_back(contig);
     }
-
-    ofs.close();
 }
 
 EulerEdge::EulerEdge(uint64_t seq,EulerNode*pfix_node,EulerNode*sfix_node,bool pfix_revcmp,bool sfix_revcmp)
@@ -303,6 +309,14 @@ std::string EulerEdge::getPrefixSequence()
 
     //convert to string
     return psfix2string(prefix);
+}
+
+std::string EulerEdge::getMiddleSequence()
+{
+    std::string seq = uint64t2string(sequence);
+
+    //convert to string
+    return seq.substr(1,KMER_SIZE-2);
 }
 
 EulerNode::EulerNode(uint64_t psfix)
@@ -442,6 +456,53 @@ std::string psfix2string(uint64_t psfix)
     }
 
     return seq;
+}
+
+//convert k mer to string
+std::string uint64t2string(uint64_t kmer)
+{
+    std::string seq = "";
+
+    for(auto p=0; p<KMER_SIZE; p++)
+    {
+        seq.append( 1, BASES.at((kmer >> KMER_SHIFT) & 0x3) );
+
+        //consume the used bits
+        kmer <<= 2;
+    }
+
+    return seq;
+}
+
+//reverse complement a string
+std::string reverseComplement(const std::string&seq)
+{
+    std::string revcmp = "";
+
+    for(int i=seq.size()-1; i>=0; i--)
+    {
+        switch(seq.at(i))
+        {
+            case 'A':
+            case 'a':
+                revcmp.append(1 ,'T');
+                break;
+            case 'T':
+            case 't':
+                revcmp.append(1 ,'A');
+                break;
+            case 'C':
+            case 'c':
+                revcmp.append(1 ,'G');
+                break;
+            case 'G':
+            case 'g':
+                revcmp.append(1 ,'C');
+                break;
+        }
+    }
+
+    return revcmp;
 }
 
 } //namespace kmerz
