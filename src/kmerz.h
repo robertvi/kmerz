@@ -13,7 +13,7 @@ namespace kmerz
     class EulerEdge
     {
         public:
-            EulerEdge(EulerNode*,EulerNode*,bool,bool);
+            EulerEdge(uint64_t,EulerNode*,EulerNode*,bool,bool);
             EulerNode*getPrefixNode(){return prefix_node;};
             EulerNode*getSuffixNode(){return suffix_node;};
             bool prefixNodeRevcmp(){return prefix_revcmp;};
@@ -23,6 +23,7 @@ namespace kmerz
 
             //get sequence preadjusted for reverse complement status
             std::string getPrefixSequence();
+            uint64_t getSequence(){return sequence;};
             char getFirstPrefixBase();
             char getLastSuffixBase();
         private:
@@ -35,6 +36,8 @@ namespace kmerz
             bool suffix_revcmp;
 
             bool visited; //true if this edge was visited already during graph walk
+
+            uint64_t sequence; //canonical form of edge's sequence ie the kmer
     };
 
     class EulerNode
@@ -45,6 +48,8 @@ namespace kmerz
             void addIncoming(EulerEdge*);
             void addOutgoing(EulerEdge*);
             uint64_t getSequence(){return sequence;};
+            EulerEdge*unvisitedOutgoing();
+            EulerEdge*unvisitedIncoming();
         private:
             std::list< EulerEdge* > incoming; //edges with this node as their suffix
             std::list< EulerEdge* > outgoing; //edges with this node as their prefix
@@ -65,13 +70,14 @@ namespace kmerz
         private:
             //lookup or generate a node
             void generateNode(uint64_t psfix,EulerNode*&node,bool&revcmp);
-            std::string walkPath(std::list< EulerEdge* >::iterator&,bool);
+            std::string walkPath(std::unordered_map< uint64_t,EulerEdge* >::iterator&,bool);
 
             //simple list of canonical kmers before they go into the graph
             std::vector< uint64_t > kmer_list;
 
-            //graph edges
-            std::list< EulerEdge* > graph_edges;
+            //graph edges not yet used as seed kmers for path generation
+            //keyed for their sequence
+            std::unordered_map< uint64_t,EulerEdge* > graph_edges;
 
             //graph nodes keyed by their canonical k-1 base sequence
             std::unordered_map< uint64_t, EulerNode* > graph_nodes;

@@ -152,19 +152,19 @@ void EulerGraph::generateGraph()
         generateNode(suffix,suffix_node,suffix_revcmp);
 
         //create associated edge
-        EulerEdge*edge = new EulerEdge(prefix_node,suffix_node,prefix_revcmp,suffix_revcmp);
+        EulerEdge*edge = new EulerEdge(kmer,prefix_node,suffix_node,prefix_revcmp,suffix_revcmp);
 
         prefix_node->addOutgoing(edge);
         suffix_node->addIncoming(edge);
-        graph_edges.push_back(edge);
+        graph_edges[kmer] = edge;
     }
 }
 
 //walk a path through the graph from a seed kmer
-std::string EulerGraph::walkPath(std::list< EulerEdge* >::iterator&list_it,
+std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iterator&map_it,
                                  bool forward_path)
 {
-    EulerEdge*edge = *list_it;
+    EulerEdge*edge = map_it->second;
 
     //initialise the sequence to the prefix sequence
     std::string seq = "";
@@ -182,61 +182,49 @@ std::string EulerGraph::walkPath(std::list< EulerEdge* >::iterator&list_it,
 
         //remove current edge from list of potential future seeds
         //unless this is the seed kmer of the forward path
-        if(reverse_path == true || is_seed == false)
+        if(forward_path == false || is_seed == false)
         {
-            graph_edges.erase(list_it);
+            graph_edges.erase(map_it);
         }
 
         is_seed = false;
 
+        EulerNode*next_node=nullptr;
         if(arrived_at_prefix)
         {
             //append last base of suffix sequence
             seq.append(1, edge->getLastSuffixBase());
+            next_node = edge->getSuffixNode();
         }
         else
         {
             //append first base of prefix
             seq.append(1, edge->getFirstPrefixBase());
+            next_node = edge->getPrefixNode();
         }
 
-        //find an unvisited outgoing edge
-        EulerEdge*next_edge=nullptr;
-        for(auto edge_it=outgoing.begin(); edge_it!=outgoing.end(); edge_it++)
-        {
-            if(edge_it->getVisited() == false)
-            {
-                next_edge = *edge_it;
-                arrived_at_prefix = true;
-                break;
-            }
-        }
+        //find an unvisited outgoing edge if any
+        edge = next_node->unvisitedOutgoing();
 
-        if(next_edge != nullptr)
+        if(edge != nullptr)
         {
-            edge = next_edge;
+            arrived_at_prefix = true;
+            map_it = graph_edges.find(edge->getSequence());
             continue;
         }
 
-        //find an unvisited incoming edge
-        for(auto edge_it=incoming.begin(); edge_it!=incoming.end(); edge_it++)
-        {
-            if(edge_it->getVisited() == false)
-            {
-                next_edge = *edge_it;
-                arrived_at_prefix = false;
-                break;
-            }
-        }
+        //find an unvisited incoming edge if any
+        edge = next_node->unvisitedIncoming();
 
-        if(next_edge != nullptr)
+        if(edge != nullptr)
         {
-            edge = next_edge;
+            arrived_at_prefix = false;
+            map_it = graph_edges.find(edge->getSequence());
             continue;
         }
 
         //reached dead end, therefore path ends here
-        return;
+        return seq;
     }
 }
 
@@ -251,13 +239,13 @@ void EulerGraph::generatePaths(const std::string&outputFile)
     {
         //pick a seed edge from the list of remaining edges
         //walkPath removes visited edges from this list
-        std::list< EulerEdge* >::iterator list_it = graph_edges.begin();
+        auto map_it = graph_edges.begin();
 
         //walk path forward from seed kmer suffix
-        std::string fwd_seq = walkPath(list_it,true);
+        std::string fwd_seq = walkPath(map_it,true);
 
         //generate reverse path from kmer prefix
-        std::string rev_seq = walkPath(list_it,false);
+        std::string rev_seq = walkPath(map_it,false);
 
         counter += 1;
 
@@ -272,8 +260,10 @@ void EulerGraph::generatePaths(const std::string&outputFile)
     ofs.close();
 }
 
-EulerEdge::EulerEdge(EulerNode*pfix_node,EulerNode*sfix_node,bool pfix_revcmp,bool sfix_revcmp)
-:prefix_node(pfix_node),suffix_node(sfix_node),prefix_revcmp(pfix_revcmp),suffix_revcmp(sfix_revcmp)
+EulerEdge::EulerEdge(uint64_t seq,EulerNode*pfix_node,EulerNode*sfix_node,bool pfix_revcmp,bool sfix_revcmp)
+:sequence(seq),
+ prefix_node(pfix_node),suffix_node(sfix_node),
+ prefix_revcmp(pfix_revcmp),suffix_revcmp(sfix_revcmp)
 {}
 
 //get first base of prefix, adjusted for reverse complementing
@@ -317,6 +307,32 @@ void EulerNode::addOutgoing(EulerEdge*edge)
 void EulerNode::addIncoming(EulerEdge*edge)
 {
     incoming.push_back(edge);
+}
+
+//return an unvisited outgoing edge or nullptr if none exist
+EulerEdge*EulerNode::unvisitedOutgoing()
+{
+    EulerEdge*next_edge=nullptr;
+
+    for(auto edge_it=outgoing.begin(); edge_it!=outgoing.end(); edge_it++)
+    {
+        if((*edge_it)->getVisited() == false) return *edge_it;
+    }
+
+    return nullptr;
+}
+
+//return an unvisited incoming edge or nullptr if none exist
+EulerEdge*EulerNode::unvisitedIncoming()
+{
+    EulerEdge*next_edge=nullptr;
+
+    for(auto edge_it=incoming.begin(); edge_it!=incoming.end(); edge_it++)
+    {
+        if((*edge_it)->getVisited() == false) return *edge_it;
+    }
+
+    return nullptr;
 }
 
 //converts to uint64_t and ensures its canonical
