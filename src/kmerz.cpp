@@ -13,9 +13,9 @@ EulerGraph::EulerGraph(std::vector< std::string >&input_list)
 {
     for(auto it=input_list.begin(); it!=input_list.end(); it++)
     {
-        std::string canonical_kmer = *it;
-        makeCanonical( canonical_kmer );
-        kmer_set.emplace( canonical_kmer );
+        std::string kmer = *it;
+        makeCanonical( kmer );
+        kmer_set.emplace( kmer );
     }
 }
 
@@ -89,11 +89,12 @@ char EulerGraph::extendSuffix(std::string suffix)
 {
     char next_base = 'X';
     bool unique = true;
+    std::string kmer;
 
     //find all possible extensions and remove them from the kmer dictionary
     for(int i=0; i<4; i++)
     {
-        std::string kmer = suffix;
+        kmer.assign(suffix);
         kmer.append(1, char(bases[i]));
         makeCanonical(kmer);
 
@@ -129,18 +130,16 @@ std::string EulerGraph::walkForwards(std::string kmer)
 
     while(true)
     {
-        std::string suffix = kmer.substr(1);
+        kmer.assign(kmer.substr(1));
 
-        char next_base = extendSuffix(suffix);
+        char next_base = extendSuffix(kmer);
 
         //stop if no valid extension found
         if(next_base == 'X') return contig;
 
         //extend contig and kmer with next base
         contig.append(1,next_base);
-        suffix.append(1,next_base);
-
-        kmer.assign(suffix);
+        kmer.append(1,next_base);
     }
 }
 
@@ -164,10 +163,16 @@ void EulerGraph::generateContigs(std::vector< std::string >&contig_list)
         std::string rev_contig = walkForwards(rev_seed);
 
         //join into final contig
-        std::cout << "fwd:" << std::endl;
+        std::string contig = reverseComplement(rev_contig) + seed + fwd_contig;
+
+        contig_list.push_back(contig);
+
+        /*std::cout << "fwd:" << std::endl;
         std::cout << fwd_contig << std::endl;
         std::cout << "rev:" << std::endl;
         std::cout << rev_contig << std::endl;
+        std::cout << "contig:" << std::endl;
+        std::cout << contig << std::endl;*/
     }
 }
 

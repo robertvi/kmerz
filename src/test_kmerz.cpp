@@ -69,9 +69,36 @@ void test_utility_functions()
     }
 }
 
+void test_generate_contigs()
+{
+    std::vector< std::string > kmer_list =\
+    {
+        "AACAGCATTATGAATGAACGAAAGTGTGGGC",
+        "ACAGCATTATGAATGAACGAAAGTGTGGGCC",
+        "CAGCATTATGAATGAACGAAAGTGTGGGCCG",
+        "AGCATTATGAATGAACGAAAGTGTGGGCCGA",
+        "GCATTATGAATGAACGAAAGTGTGGGCCGAA",
+    };
+
+    std::string genome="AACAGCATTATGAATGAACGAAAGTGTGGGCCGAA";
+    makeCanonical(genome);
+
+    EulerGraph euler(kmer_list);
+
+    std::vector< std::string > contig_list;
+
+    euler.generateContigs(contig_list);
+
+    assert(contig_list.size() == 1);
+
+    makeCanonical(contig_list[0]);
+
+    assert(contig_list[0] == genome);
+}
+
 int main(int argc,char*argv[])
 {
     test_utility_functions();
-    //test_generate_paths();
+    test_generate_contigs();
     return 0;
 }
