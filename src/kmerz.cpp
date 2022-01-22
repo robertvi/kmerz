@@ -147,6 +147,7 @@ void EulerGraph::generateGraph()
         //lookup or generate node object for prefix and suffic sequences
         //convert to reverse complement if not already canonical
         //sets *_revcmp and *_node
+        //note prefix_node and suffix node can be the *same* node
         generateNode(prefix,prefix_node,prefix_revcmp);
         generateNode(suffix,suffix_node,suffix_revcmp);
 
@@ -159,50 +160,78 @@ void EulerGraph::generateGraph()
     }
 }
 
+//walk a path through the graph from a seed kmer
+std::string EulerGraph::walkPath(std::list< EulerEdge* >::iterator&list_it,
+                                 bool reverse_path)
+{
+    EulerEdge*edge = *list_it;
+
+    //initialise the sequence to the prefix sequence
+    std::string seq = edge->getPrefixSequence();
+
+    //true for first iteration of the while only
+    bool is_seed = true;
+
+    bool forward_strand = true;
+    
+    while(true)
+    {
+        //mark current edge as visited
+        edge->setVisited();
+
+        //remove current edge from list of potential future seeds
+        //unless this is the seed kmer of the forward path
+        if(reverse_path == true || is_seed == false)
+        {
+            graph_edges.erase(list_it);
+        }
+
+        is_seed = false;
+
+        if(forward_strand)
+        {
+            //append last base of suffix sequence
+            seq.append(1, edge->getLastSuffixBase());
+
+            //proceed to suffix node
+        }
+        else
+        {
+            //append first base of prefix
+            seq.append(1, edge->getFirstPrefixBase());
+
+            //proceed to prefix node
+        }
+    }
+}
+
 //follow paths through the graph emitting the sequence to the outputfile
 void EulerGraph::generatePaths(const std::string&outputFile)
 {
     std::ofstream ofs;
     ofs.open(outputFile, std::ios::binary);
 
+    int counter=0;
     while(graph_edges.size())
     {
         //pick a seed edge from the list of remaining edges
+        //walkPath removes visited edges from this list
         std::list< EulerEdge* >::iterator list_it = graph_edges.begin();
-        EulerEdge*seed = *list_it;
 
-        //initialise the path state to "forward strand"
-        bool forward_strand = true;
+        //walk path forward from seed kmer suffix
+        std::string fwd_seq = walkPath(list_it,false);
 
-        //initialise the sequence to the prefix sequence
-        std::string forward_path = seed->getPrefixSequence();
+        //generate reverse path from kmer prefix
+        std::string rev_seq = walkPath(list_it,true);
 
-        EulerEdge*current = seed;
+        counter += 1;
 
-        while(true)
-        {
-            //mark current edge as visited
-            current->setVisited();
+        //todo:merge the two sequences here
 
-            //remove current edge from list of potential future seeds
-            graph_edges.erase(list_it);
-
-            if(forward_strand)
-            {
-                //append last base of suffix sequence
-                forward_path.append(1, seed->getLastSuffixBase());
-
-                //proceed to suffix node
-            }
-            else
-            {
-                //append first base of prefix
-                forward_path.append(1, seed->getFirstPrefixBase());
-
-                //proceed to prefix node
-            }
-        }
-
+        ofs << ">fwdseq" << std::to_string(counter) << std::endl;
+        ofs << fwd_seq << std::endl;
+        ofs << ">revseq" << std::to_string(counter) << std::endl;
+        ofs << rev_seq << std::endl;
     }
 
     ofs.close();

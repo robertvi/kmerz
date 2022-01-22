@@ -65,6 +65,7 @@ namespace kmerz
         private:
             //lookup or generate a node
             void generateNode(uint64_t psfix,EulerNode*&node,bool&revcmp);
+            std::string walkPath(std::list< EulerEdge* >::iterator&,bool);
 
             //simple list of canonical kmers before they go into the graph
             std::vector< uint64_t > kmer_list;
