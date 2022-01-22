@@ -8,6 +8,7 @@ mkdir -p tmp/kmerz_test_data && cd tmp/kmerz_test_data && pwd
 #create a simple random "genome" sequence
 random_sequence.py seq 1 10000 0 > ${BASENAME}.flat
 random_sequence.py seq 100 31 0 > test_kmers.flat
+random_sequence.py seq 100 100 0 > test_genomes.flat
 
 #simulate reads from the genome, without errors of any kind
 generate_reads.py ${BASENAME}.flat 20000 100 0.0 0.0 0.5 > ${BASENAME}_reads.flat

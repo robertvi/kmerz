@@ -5,6 +5,20 @@
 
 using namespace kmerz;
 
+std::vector<std::string> test_genomes =
+{
+"GTCTCAAAGACCGTTGCTGCTATAGGTTCACACGGACGCCATGGTCGCAGCCGCGTTCCAAGCCAGCCGCTATTGCTTATTATCCGCGGCGAACCGTATT",
+"TAGAATGCCGTTGGACTAGACGAGACACCTGCTAACCGCCAAGCGTAAAGTCGAACCGCGGCTATGTATCGGGTAAGCATCGAGGCTTTGAAAGGCTGGT",
+"GCCTCTGTTCCTAATGAGTGGTTGAGCGCAATTCGGTTTGATCGATTTTTTTAAAGAGGTACCAACGGAGTCTAGCGTCTTTAGGAGGGGCCATAACGAT",
+"GGGCGGGTAATCACTCCCACTGCCGGTCGCTATACTGCGGGGTGCATGGCAATCTGACCCGACGCATTCTTATTACACCGCTAACTAAATTGTGGCAGCT",
+"TCCTGCTCCCTCATCGCATACCGAGTTTTCGATCACCTGAGTGGCAATGGAGAGAATATGTCAGAAGACGATACAATGTTCCGCCGGAGGACATACCAGG",
+"CTCACGTCGAACTTTTTCTGTTTGGGTACGGTAGGGTGAGTATGCTACTATTGGACCGTGTATAAGCTACCTGTAGCCCCTATTGCGAGCGTGTGTTACC",
+"CCATCTATTGAAAGTGGGTGTCCCTACAACAGAGATTCAATACCAATTCACTACACTGGTACATGTTGTGGGACAGAGCCACGCCCTTGTAGAGATTATT",
+"AGACAGCCTTCCCACGCACTCGCCAGGATTTGTCATCGTGCTCATAATATCGCGCCAGACGAAAGTCATGTTAAATACCACTTTTATGCTGGCACGGTTC",
+"ATTTGCGAGCTAACTCCCGAGGTGAACGTGGGAATCTGGCCGCGCAAGCAGAAAGAGCTCGAAGTATTATTTGCAGACCTGGTTTGGGAGCTAGTGTGGC",
+"CTACAAAATTGAACCTGGCCGTCAGATAATAAAGGAAAAAACTGTTCGGCGCTATATGTAGAAGATTATACGAGCAATGGGCAGGTACCACAGCGGCGCC"
+};
+
 std::vector<std::string> test_list =
 {
 "CAGCATTATGAATGAACGAAAGTGTGGGCCG",
@@ -71,29 +85,37 @@ void test_utility_functions()
 
 void test_generate_contigs()
 {
-    std::vector< std::string > kmer_list =\
+    std::vector< std::string > kmer_list;
+
+    for(int i=0; i<test_genomes.size(); i++)
     {
-        "AACAGCATTATGAATGAACGAAAGTGTGGGC",
-        "ACAGCATTATGAATGAACGAAAGTGTGGGCC",
-        "CAGCATTATGAATGAACGAAAGTGTGGGCCG",
-        "AGCATTATGAATGAACGAAAGTGTGGGCCGA",
-        "GCATTATGAATGAACGAAAGTGTGGGCCGAA",
-    };
+        kmer_list.clear();
+        std::string genome = test_genomes[i];
 
-    std::string genome="AACAGCATTATGAATGAACGAAAGTGTGGGCCGAA";
-    makeCanonical(genome);
+        for(int j=0; j<genome.size()-30; j++)
+        {
+            std::string kmer = genome.substr(j,31);
+            assert(kmer.size() == 31);
+            kmer_list.push_back(kmer);
+        }
 
-    EulerGraph euler(kmer_list);
+        makeCanonical(genome);
+        EulerGraph euler(kmer_list);
 
-    std::vector< std::string > contig_list;
+        std::vector< std::string > contig_list;
 
-    euler.generateContigs(contig_list);
+        euler.generateContigs(contig_list);
 
-    assert(contig_list.size() == 1);
+        assert(contig_list.size() == 1);
 
-    makeCanonical(contig_list[0]);
+        makeCanonical(contig_list[0]);
 
-    assert(contig_list[0] == genome);
+        /*std::cout << i << std::endl;
+        std::cout << genome << std::endl;
+        std::cout << contig_list[0] << std::endl;*/
+
+        assert(contig_list[0] == genome);
+    }
 }
 
 int main(int argc,char*argv[])

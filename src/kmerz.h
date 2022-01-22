@@ -20,16 +20,14 @@ namespace kmerz
             //walk through the graph from seed kmers
             void generateContigs(std::vector< std::string >&);
 
-        private:
+            //walk forward from a given seed kmer
             std::string walkForwards(std::string);
+        private:
             char extendSuffix(std::string);
 
             //canonical kmers as strings
             std::unordered_set< std::string > kmer_set;
     };
-
-    //return the last size-1 characters
-    std::string getSuffix(const std::string&);
 
     //reverse complement a string
     std::string reverseComplement(const std::string&);

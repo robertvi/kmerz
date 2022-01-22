@@ -222,9 +222,4 @@ std::string reverseComplement(const std::string&seq)
     return revcmp;
 }
 
-std::string getSuffix(const std::string&seq)
-{
-    return seq.substr(1);
-}
-
 } //namespace kmerz
