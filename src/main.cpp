@@ -14,13 +14,10 @@ int main(int argc,char**argv)
     std::vector< std::string > contig_list;
 
     //generate contigs by walking the (implicit) overlap graph
-    euler.generateContigs( contig_list );
+    euler.generateContigs(contig_list);
 
-    for(int i=0; i<contig_list.size(); i++)
-    {
-        std::cout << ">contig" + std::to_string(i) << std::endl;
-        std::cout << contig_list.at(i) << std::endl;
-    }
+    //print to stdout as fasta format
+    euler.printToStdout(contig_list);
 
     return 0;
 }

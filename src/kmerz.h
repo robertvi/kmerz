@@ -25,6 +25,8 @@ namespace kmerz
 
             //report only unique possible extensions of the seed string
             char extendSuffix(std::string);
+
+            void printToStdout(std::vector< std::string >&,int=80);
         private:
 
             //canonical kmers as strings

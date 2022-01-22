@@ -138,8 +138,33 @@ void testExtendSuffix()
 
             char ext = euler.extendSuffix(seed_seq);
             assert(ext == char(bases[j]));
-            //assert(ext == 'X');
+            //assert(ext == 'Z');
         }
+    }
+}
+void testWalkForwards()
+{
+    std::vector< std::string > kmer_list;
+
+    for(int i=0; i<test_genomes.size(); i++)
+    {
+        kmer_list.clear();
+        std::string genome = test_genomes[i];
+
+        for(int j=0; j<genome.size()-30; j++)
+        {
+            std::string kmer = genome.substr(j,31);
+            assert(kmer.size() == 31);
+            kmer_list.push_back(kmer);
+        }
+
+        makeCanonical(genome);
+
+        EulerGraph euler(kmer_list);
+        std::string seed = genome.substr(20,31);
+        std::string fwd_seq = euler.walkForwards(seed);
+        assert(fwd_seq == genome.substr(51));
+        //assert(false);
     }
 }
 
@@ -148,5 +173,6 @@ int main(int argc,char*argv[])
     testUtilityFunctions();
     testGenerateContigs();
     testExtendSuffix();
+    testWalkForwards();
     return 0;
 }

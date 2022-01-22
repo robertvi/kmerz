@@ -85,6 +85,21 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
     ifs.close();
 }
 
+void EulerGraph::printToStdout(std::vector< std::string >&contig_list,int maxlen)
+{
+    for(int i=0; i<contig_list.size(); i++)
+    {
+        std::cout << ">contig" + std::to_string(i) << std::endl;
+
+        int j=0;
+        while(j < contig_list.at(i).size())
+        {
+            std::cout << contig_list.at(i).substr(j,maxlen) << std::endl;
+            j += maxlen;
+        }
+    }
+}
+
 //try each of the four possible extensions
 //return only unique matches, otherwise return X
 //*deletes* the kmer(s) that represent possible extensions
