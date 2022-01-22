@@ -162,18 +162,19 @@ void EulerGraph::generateGraph()
 
 //walk a path through the graph from a seed kmer
 std::string EulerGraph::walkPath(std::list< EulerEdge* >::iterator&list_it,
-                                 bool reverse_path)
+                                 bool forward_path)
 {
     EulerEdge*edge = *list_it;
 
     //initialise the sequence to the prefix sequence
-    std::string seq = edge->getPrefixSequence();
+    std::string seq = "";
 
     //true for first iteration of the while only
     bool is_seed = true;
 
-    bool forward_strand = true;
-    
+    //forward path moves from kmer prefix to kmer suffix
+    bool arrived_at_prefix = forward_path;
+
     while(true)
     {
         //mark current edge as visited
@@ -188,20 +189,54 @@ std::string EulerGraph::walkPath(std::list< EulerEdge* >::iterator&list_it,
 
         is_seed = false;
 
-        if(forward_strand)
+        if(arrived_at_prefix)
         {
             //append last base of suffix sequence
             seq.append(1, edge->getLastSuffixBase());
-
-            //proceed to suffix node
         }
         else
         {
             //append first base of prefix
             seq.append(1, edge->getFirstPrefixBase());
-
-            //proceed to prefix node
         }
+
+        //find an unvisited outgoing edge
+        EulerEdge*next_edge=nullptr;
+        for(auto edge_it=outgoing.begin(); edge_it!=outgoing.end(); edge_it++)
+        {
+            if(edge_it->getVisited() == false)
+            {
+                next_edge = *edge_it;
+                arrived_at_prefix = true;
+                break;
+            }
+        }
+
+        if(next_edge != nullptr)
+        {
+            edge = next_edge;
+            continue;
+        }
+
+        //find an unvisited incoming edge
+        for(auto edge_it=incoming.begin(); edge_it!=incoming.end(); edge_it++)
+        {
+            if(edge_it->getVisited() == false)
+            {
+                next_edge = *edge_it;
+                arrived_at_prefix = false;
+                break;
+            }
+        }
+
+        if(next_edge != nullptr)
+        {
+            edge = next_edge;
+            continue;
+        }
+
+        //reached dead end, therefore path ends here
+        return;
     }
 }
 
@@ -219,14 +254,14 @@ void EulerGraph::generatePaths(const std::string&outputFile)
         std::list< EulerEdge* >::iterator list_it = graph_edges.begin();
 
         //walk path forward from seed kmer suffix
-        std::string fwd_seq = walkPath(list_it,false);
+        std::string fwd_seq = walkPath(list_it,true);
 
         //generate reverse path from kmer prefix
-        std::string rev_seq = walkPath(list_it,true);
+        std::string rev_seq = walkPath(list_it,false);
 
         counter += 1;
 
-        //todo:merge the two sequences here
+        //todo:merge the two sequences here with the middle of the seed kmer
 
         ofs << ">fwdseq" << std::to_string(counter) << std::endl;
         ofs << fwd_seq << std::endl;
