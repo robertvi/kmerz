@@ -6,5 +6,6 @@
 /src/*.o
 /src/*.d
 /kmerz
+/test_kmerz
 /out
 /err

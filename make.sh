@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 g++ -g -o kmerz \
 ./src/kmerz.cpp \
 ./src/config.cpp \
@@ -9,3 +11,5 @@ g++ -g -o test_kmerz \
 ./src/kmerz.cpp \
 ./src/config.cpp \
 ./src/test_kmerz.cpp
+
+./test_kmerz && echo okay
