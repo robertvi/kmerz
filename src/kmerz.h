@@ -22,7 +22,7 @@ namespace kmerz
             bool getVisited(){return visited;};
 
             //get sequence preadjusted for reverse complement status
-            std::string getPrefixSequence();
+            //std::string getPrefixSequence();
             std::string getMiddleSequence();
             uint64_t getSequence(){return sequence;};
             char getFirstPrefixBase();
@@ -86,6 +86,10 @@ namespace kmerz
             std::unordered_map< uint64_t, EulerNode* > graph_nodes;
     };
 
+    //convert any length string to uint64_t
+    //do not make canonical
+    uint64_t anyString2uint64t(const std::string&seq);
+
     //convert string of bases to bits in a uint64_t
     uint64_t string2uint64t(const std::string&);
 
@@ -104,5 +108,8 @@ namespace kmerz
 
     //reverse complement a string
     std::string reverseComplement(const std::string&);
+
+    uint64_t kmer2prefix(uint64_t);
+    uint64_t kmer2suffix(uint64_t);
 } //namespace kmerz
 #endif //__ROBERTVI_KMERZ_KMERZ_H__

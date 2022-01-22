@@ -144,10 +144,10 @@ void EulerGraph::generateGraph()
         //std::cout << kmer << std::endl;
 
         //generate prefix as all but the last/least significant 4 bits
-        uint64_t prefix = (kmer & (PSFIX_MASK << 2)) >> 2;
+        uint64_t prefix = kmer2prefix(kmer);
 
         //generate suffix as all but the first/most significant 4 bits
-        uint64_t suffix = kmer & PSFIX_MASK;
+        uint64_t suffix = kmer2suffix(kmer);
 
         //capture everything needed to create the edge object
         bool prefix_revcmp,suffix_revcmp;
@@ -272,7 +272,7 @@ char EulerEdge::getLastSuffixBase()
 }
 
 //get prefix sequence adjusted for reverse complementing
-std::string EulerEdge::getPrefixSequence()
+/*std::string EulerEdge::getPrefixSequence()
 {
     uint64_t prefix = prefix_node->getSequence();
 
@@ -281,7 +281,7 @@ std::string EulerEdge::getPrefixSequence()
 
     //convert to string
     return psfix2string(prefix);
-}
+}*/
 
 std::string EulerEdge::getMiddleSequence()
 {
@@ -373,6 +373,40 @@ uint64_t string2uint64t(const std::string&seq)
     else               return rkmer;
 }
 
+//convert any length (up to 32) string into uint64_t
+//do not make canonical
+uint64_t anyString2uint64t(const std::string&seq)
+{
+    uint64_t kmer=0;
+
+    for(int i=0; i<seq.size(); i++)
+    {
+        switch(seq[i])
+        {
+            case 'A':
+            case 'a':
+                kmer = ((kmer << 2) +  uint64_t(0));
+                break;
+            case 'C':
+            case 'c':
+                kmer = ((kmer << 2) +  uint64_t(1));
+                break;
+            case 'G':
+            case 'g':
+                kmer = ((kmer << 2) +  uint64_t(2));
+                break;
+            case 'T':
+            case 't':
+                kmer = ((kmer << 2) +  uint64_t(3));
+                break;
+            default:
+                throw std::runtime_error("Error: invalid character in kmer: " + seq[i]);
+        }
+    }
+
+    return kmer;
+}
+
 //ensure psfix (prefix or suffix) is canonical, return true if it needed reverse complementing
 bool psfix2canonical(uint64_t*psfix)
 {
@@ -382,7 +416,7 @@ bool psfix2canonical(uint64_t*psfix)
     {
         //rev_fix: grows from the left (MSB)
         //complement the two least significant bits, shift them to the start
-        rev_fix = (rev_fix >> 2) + ((~fwd_fix & 0x3) << PSFIX_SHIFT);
+        rev_fix = (rev_fix >> 2) + (((~fwd_fix) & 0x3) << PSFIX_SHIFT);
 
         //consume the used bits
         fwd_fix >>= 2;
@@ -405,7 +439,7 @@ uint64_t revcmpPsfix(uint64_t psfix)
     {
         //rev_fix: grows from the left (MSB)
         //complement the two least significant bits of psfix, shift them to the start
-        rev_fix = (rev_fix >> 2) + ((~psfix & 0x3) << PSFIX_SHIFT);
+        rev_fix = (rev_fix >> 2) + (((~psfix) & 0x3) << PSFIX_SHIFT);
 
         //consume the used bits
         psfix >>= 2;
@@ -475,6 +509,18 @@ std::string reverseComplement(const std::string&seq)
     }
 
     return revcmp;
+}
+
+//generate prefix as all but the last/least significant 4 bits
+uint64_t kmer2prefix(uint64_t kmer)
+{
+    return (kmer & (PSFIX_MASK << 2)) >> 2;
+}
+
+//generate suffix as all but the first/most significant 4 bits
+uint64_t kmer2suffix(uint64_t kmer)
+{
+    return kmer & PSFIX_MASK;
 }
 
 } //namespace kmerz
