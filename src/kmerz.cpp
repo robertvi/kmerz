@@ -4,6 +4,7 @@
 #include <fstream>
 
 const uint64_t KMER_SIZE= 31;
+const std::string bases = "ATCG";
 
 namespace kmerz
 {
@@ -84,9 +85,90 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
     ifs.close();
 }
 
-void EulerGraph::generateContigs()
+char EulerGraph::extendSuffix(std::string suffix)
 {
+    char next_base = 'X';
+    bool unique = true;
 
+    //find all possible extensions and remove them from the kmer dictionary
+    for(int i=0; i<4; i++)
+    {
+        std::string kmer = suffix;
+        kmer.append(1, char(bases[i]));
+        makeCanonical(kmer);
+
+        //search for the possible kmer extending the suffix
+        auto set_it = kmer_set.find(kmer);
+
+        //if not present continue to next base
+        if(set_it == kmer_set.end()) continue;
+
+        //remove the kmer from the set
+        kmer_set.erase(set_it);
+
+        if(next_base == 'X')
+        {
+            //possible unique extension
+            next_base = char(bases[i]);
+        }
+        else
+        {
+            //non unique extension
+            unique = false;
+        }
+    }
+
+    if(next_base != 'X' && unique == true) return next_base;
+
+    return 'X';
+}
+
+std::string EulerGraph::walkForwards(std::string kmer)
+{
+    std::string contig = "";
+
+    while(true)
+    {
+        std::string suffix = kmer.substr(1);
+
+        char next_base = extendSuffix(suffix);
+
+        //stop if no valid extension found
+        if(next_base == 'X') return contig;
+
+        //extend contig and kmer with next base
+        contig.append(1,next_base);
+        suffix.append(1,next_base);
+
+        kmer.assign(suffix);
+    }
+}
+
+void EulerGraph::generateContigs(std::vector< std::string >&contig_list)
+{
+    //while kmers left in set
+    while(kmer_set.size())
+    {
+        //pick arbitrary seed kmer
+        auto seed_it = kmer_set.begin();
+        std::string seed = *seed_it;
+        std::string rev_seed = reverseComplement(seed);
+
+        //remove the seed kmer to mark it as visited already
+        kmer_set.erase(seed_it);
+
+        //walk sequence forward from seed
+        std::string fwd_contig = walkForwards(seed);
+
+        //walk sequence backward from seed
+        std::string rev_contig = walkForwards(rev_seed);
+
+        //join into final contig
+        std::cout << "fwd:" << std::endl;
+        std::cout << fwd_contig << std::endl;
+        std::cout << "rev:" << std::endl;
+        std::cout << rev_contig << std::endl;
+    }
 }
 
 //make a string canonical
@@ -135,5 +217,9 @@ std::string reverseComplement(const std::string&seq)
     return revcmp;
 }
 
+std::string getSuffix(const std::string&seq)
+{
+    return seq.substr(1);
+}
 
 } //namespace kmerz

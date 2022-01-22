@@ -18,12 +18,18 @@ namespace kmerz
             EulerGraph(std::vector< std::string >&);
 
             //walk through the graph from seed kmers
-            void generateContigs();
+            void generateContigs(std::vector< std::string >&);
 
         private:
+            std::string walkForwards(std::string);
+            char extendSuffix(std::string);
+
             //canonical kmers as strings
             std::unordered_set< std::string > kmer_set;
     };
+
+    //return the last size-1 characters
+    std::string getSuffix(const std::string&);
 
     //reverse complement a string
     std::string reverseComplement(const std::string&);

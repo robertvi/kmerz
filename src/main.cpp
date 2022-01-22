@@ -7,7 +7,12 @@ int main(int argc,char**argv)
     kmerz::KmerzConfig config(argc,argv);
 
     //load and min-count filter kmers from file
-    kmerz::EulerGraph euler(config.getInputFile(),config.getMinKmerCount());
+    kmerz::EulerGraph euler( config.getInputFile(),config.getMinKmerCount() );
+
+    std::vector< std::string > contig_list;
+
+    //generate contigs by walking the (implicit) overlap graph
+    euler.generateContigs( contig_list );
 
     return 0;
 }
