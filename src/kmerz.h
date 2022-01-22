@@ -74,14 +74,13 @@ namespace kmerz
         private:
             //lookup or generate a node
             void generateNode(uint64_t psfix,EulerNode*&node,bool&revcmp);
-            std::string walkPath(std::unordered_map< uint64_t,EulerEdge* >::iterator,bool);
+            std::string walkPath(EulerEdge*,bool);
 
             //canonical kmers
             std::vector< uint64_t > kmer_list;
 
-            //graph edges not yet used as seed kmers for path generation
-            //keyed for their sequence
-            std::unordered_map< uint64_t,EulerEdge* > graph_edges;
+            //graph edges
+            std::list< EulerEdge* > graph_edges;
 
             //graph nodes keyed by their canonical k-1 base sequence
             std::unordered_map< uint64_t, EulerNode* > graph_nodes;

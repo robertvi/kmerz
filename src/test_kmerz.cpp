@@ -13,7 +13,7 @@ void test_generate_paths()
     std::string kmer1="GTCAACGCTACAACTCAAGGGTAAAGCCGAA";
     std::string kmer2="TCAACGCTACAACTCAAGGGTAAAGCCGAAT";
     std::string kmer3="CAACGCTACAACTCAAGGGTAAAGCCGAATA";
-                       GAACGCTACAACTCAAGGGTAAAGCCGAATA
+                     //GAACGCTACAACTCAAGGGTAAAGCCGAATA
     std::vector< std::string > test_kmers;
 
     test_kmers.push_back(kmer1);
