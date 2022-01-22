@@ -44,7 +44,7 @@ std::vector<std::string> test_list =
 "CACGATAAGAAACGGCCGCCATGGAAAATGC"
 };
 
-void test_utility_functions()
+void testUtilityFunctions()
 {
     //assert(reverseComplement("A") == "XYZ");
 
@@ -67,7 +67,7 @@ void test_utility_functions()
         assert(reverseComplement(reverseComplement(seq)) == seq);
     }
 
-    for(int i=0; i<test_list.size()-1; i++)
+    for(int i=0; i<test_list.size(); i++)
     {
         std::string seq1 = test_list[i];
         std::string seq2 = reverseComplement(seq1);
@@ -83,7 +83,7 @@ void test_utility_functions()
     }
 }
 
-void test_generate_contigs()
+void testGenerateContigs()
 {
     std::vector< std::string > kmer_list;
 
@@ -118,9 +118,35 @@ void test_generate_contigs()
     }
 }
 
+void testExtendSuffix()
+{
+    std::string bases = "ATCG";
+    std::vector< std::string > kmer_list;
+
+    for(int i=0; i<test_list.size(); i++)
+    {
+        for(int j=0; j<4; j++)
+        {
+            kmer_list.clear();
+            std::string base_seq = test_list[i];
+            kmer_list.push_back(base_seq);
+
+            std::string seed_seq = base_seq.substr(1);
+            kmer_list.push_back(seed_seq + bases[j]);
+
+            EulerGraph euler(kmer_list);
+
+            char ext = euler.extendSuffix(seed_seq);
+            assert(ext == char(bases[j]));
+            //assert(ext == 'X');
+        }
+    }
+}
+
 int main(int argc,char*argv[])
 {
-    test_utility_functions();
-    test_generate_contigs();
+    testUtilityFunctions();
+    testGenerateContigs();
+    testExtendSuffix();
     return 0;
 }

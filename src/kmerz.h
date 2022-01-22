@@ -22,8 +22,10 @@ namespace kmerz
 
             //walk forward from a given seed kmer
             std::string walkForwards(std::string);
-        private:
+
+            //report only unique possible extensions of the seed string
             char extendSuffix(std::string);
+        private:
 
             //canonical kmers as strings
             std::unordered_set< std::string > kmer_set;

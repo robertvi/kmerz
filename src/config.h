@@ -11,7 +11,7 @@ namespace kmerz
             KmerzConfig(int _argc,char**_argv);
             virtual ~KmerzConfig();
             std::string getInputFile() const {return inputFile;}
-            std::string getOutputFile() const {return outputFile;}
+            //std::string getOutputFile() const {return outputFile;}
             int getMinKmerCount() const {return minKmerCount;}
         private:
             int findOption(const std::string&option,const std::string & alt="");
@@ -22,7 +22,7 @@ namespace kmerz
             //command line options
             int minKmerCount;
             std::string inputFile;
-            std::string outputFile;
+            //std::string outputFile;
 
             int argc;
             char**argv;

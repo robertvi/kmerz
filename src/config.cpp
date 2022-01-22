@@ -7,14 +7,14 @@ namespace kmerz
 {
 
 const char*KmerzConfig::usage =
-"kmerz [--min-count|-m <minKmerCount>] --input|-i <inputfile> --output|-o <filename>";
+"kmerz [--min-count|-m <minKmerCount>] --input|-i <inputfile>";// --output|-o <filename>";
 
 KmerzConfig::KmerzConfig(int _argc,char**_argv)
 :argc(_argc),argv(_argv)
 {
     //set default option values
     inputFile = "";   //no default, must specify
-    outputFile = ""; //no default, must specify
+    //outputFile = ""; //no default, must specify
     minKmerCount = 0; //no filtering
 
     try
@@ -38,14 +38,14 @@ void KmerzConfig::parseArgs()
         exit(0);
     }
 
-    if(findOption("--output","-o"))
+    /*if(findOption("--output","-o"))
     {
         outputFile = getOption("--output","-o");
     }
     else
     {
         throw std::runtime_error("Error: --output option is mandatory");
-    }
+    }*/
 
     if(findOption("--min-count","-m"))
     {
@@ -71,7 +71,7 @@ void KmerzConfig::parseArgs()
 
 void KmerzConfig::showOptions()
 {
-    std::cout << "outputFile=" << outputFile << std::endl;
+    //std::cout << "outputFile=" << outputFile << std::endl;
     std::cout << "inputFile="  << inputFile  << std::endl;
     std::cout << "minKmerCount=" << minKmerCount << std::endl;
 }

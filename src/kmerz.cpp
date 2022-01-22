@@ -85,6 +85,9 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
     ifs.close();
 }
 
+//try each of the four possible extensions
+//return only unique matches, otherwise return X
+//*deletes* the kmer(s) that represent possible extensions
 char EulerGraph::extendSuffix(std::string suffix)
 {
     char next_base = 'X';
@@ -124,6 +127,8 @@ char EulerGraph::extendSuffix(std::string suffix)
     return 'X';
 }
 
+//walk a seed kmer forwards through the implied graph of
+//k-1 overlaps between kmers
 std::string EulerGraph::walkForwards(std::string kmer)
 {
     std::string contig = "";
@@ -143,6 +148,12 @@ std::string EulerGraph::walkForwards(std::string kmer)
     }
 }
 
+//starting from arbitrary remaining seed kmers
+//walk backwards and forwards through the implicit eulerian graph
+//defined by k-1 overlaps of kmer sequences
+//adding the recontructed sequences as contigs to the list
+//visit each kmer only once, removing it once visited
+//in the manner of an Eulerian path
 void EulerGraph::generateContigs(std::vector< std::string >&contig_list)
 {
     //while kmers left in set
@@ -166,18 +177,13 @@ void EulerGraph::generateContigs(std::vector< std::string >&contig_list)
         std::string contig = reverseComplement(rev_contig) + seed + fwd_contig;
 
         contig_list.push_back(contig);
-
-        /*std::cout << "fwd:" << std::endl;
-        std::cout << fwd_contig << std::endl;
-        std::cout << "rev:" << std::endl;
-        std::cout << rev_contig << std::endl;
-        std::cout << "contig:" << std::endl;
-        std::cout << contig << std::endl;*/
     }
 }
 
 //make a string canonical
 //return true if the value changed
+//canonical is defined as the sequence or its reverse complement
+//whichever would come first in an alphabetical ordering
 bool makeCanonical(std::string&seq)
 {
     std::string revcmp = reverseComplement(seq);
@@ -192,6 +198,8 @@ bool makeCanonical(std::string&seq)
 }
 
 //reverse complement a string
+//i.e. give the sequence of the complementary strand of DNA
+//which runs in the other direction
 std::string reverseComplement(const std::string&seq)
 {
     std::string revcmp = "";
