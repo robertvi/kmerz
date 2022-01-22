@@ -1,6 +1,6 @@
 #!/bin/bash
 
-g++ -o kmerz \
+g++ -g -o kmerz \
 ./src/kmerz.cpp \
 ./src/config.cpp \
 ./src/main.cpp

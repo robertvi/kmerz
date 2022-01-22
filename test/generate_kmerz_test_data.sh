@@ -14,6 +14,12 @@ generate_reads.py ${BASENAME}.flat 20000 100 0.0 0.0 0.5 > ${BASENAME}_reads.fla
 #count kmers in the reads
 count_kmers.py ${BASENAME}_reads.flat 31 > ${BASENAME}_31mer_counts
 
+#assemble the kmers into contigs
+assemble_kmers.py --kmer-counts=${BASENAME}_31mer_counts --min-count=0 > ${BASENAME}_assembly.flat
+
+#generate a dot plot comparing kmer positions in original and assembled sequence
+compare_kmers.py ${BASENAME}_assembly.flat ${BASENAME}.flat 10 > ${BASENAME}_dots
+
 #plot histogram to Rplots.pdf
 plot_kmer_histogram.R
 

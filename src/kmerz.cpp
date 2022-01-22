@@ -131,7 +131,7 @@ void EulerGraph::generateGraph()
         uint64_t kmer = kmer_list.back();
         kmer_list.pop_back();//destroy as we go along to save memory
 
-        std::cout << kmer << std::endl;
+        //std::cout << kmer << std::endl;
 
         //generate prefix as all but the last/least significant 4 bits
         uint64_t prefix = (kmer & (PSFIX_MASK << 2)) >> 2;
@@ -161,7 +161,7 @@ void EulerGraph::generateGraph()
 }
 
 //walk a path through the graph from a seed kmer
-std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iterator&map_it,
+std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iterator map_it,
                                  bool forward_path)
 {
     EulerEdge*edge = map_it->second;
@@ -169,10 +169,9 @@ std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iter
     //initialise the sequence to the prefix sequence
     std::string seq = "";
 
-    //true for first iteration of the while only
+    //true for first iteration of the while loop only
     bool is_seed = true;
 
-    //forward path moves from kmer prefix to kmer suffix
     bool arrived_at_prefix = forward_path;
 
     while(true)
@@ -181,7 +180,8 @@ std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iter
         edge->setVisited();
 
         //remove current edge from list of potential future seeds
-        //unless this is the seed kmer of the forward path
+        //unless this is the seed kmer of the forward path which will be used
+        //to seed the reverse path
         if(forward_path == false || is_seed == false)
         {
             graph_edges.erase(map_it);
@@ -210,6 +210,12 @@ std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iter
         {
             arrived_at_prefix = true;
             map_it = graph_edges.find(edge->getSequence());
+
+            if(map_it == graph_edges.end())
+            {
+                throw std::runtime_error("Error: failed to find edge sequence");
+            }
+
             continue;
         }
 
@@ -220,6 +226,11 @@ std::string EulerGraph::walkPath(std::unordered_map< uint64_t,EulerEdge* >::iter
         {
             arrived_at_prefix = false;
             map_it = graph_edges.find(edge->getSequence());
+
+            if(map_it == graph_edges.end())
+            {
+                throw std::runtime_error("Error: failed to find edge sequence");
+            }
             continue;
         }
 
@@ -238,7 +249,7 @@ void EulerGraph::generatePaths(const std::string&outputFile)
     while(graph_edges.size())
     {
         //pick a seed edge from the list of remaining edges
-        //walkPath removes visited edges from this list
+        //walkPath removes visited edges from this list as it goes
         auto map_it = graph_edges.begin();
 
         //walk path forward from seed kmer suffix
