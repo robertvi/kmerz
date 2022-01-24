@@ -1,12 +1,12 @@
 #!/usr/bin/env Rscript
 
 #
-# plot may appear as Rplot.pdf
+# plot should appear as Rplot.pdf
 #
 
 library(ggplot2)
 
-df = read.table("10k_31mer_counts",header=F,sep=" ",col.names=c("kmer","rev","count"))
+df = read.table("10k_31mer_counts",header=F,sep=" ",col.names=c("kmer","count"))
 
 ggplot(df, aes(x=count)) +
   geom_histogram(binwidth=1)

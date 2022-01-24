@@ -29,7 +29,7 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
     std::ifstream ifs;
     ifs.open (inputFile, std::ios::binary);
 
-    std::string fwd_kmer,rev_kmer;
+    std::string kmer;
     int line_ctr=0;
     uint64_t count;
 
@@ -37,7 +37,7 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
     {
         line_ctr++;
 
-        ifs >> fwd_kmer;
+        ifs >> kmer;
 
         if(ifs.eof()) break;
 
@@ -45,19 +45,9 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
         {
             throw std::runtime_error("Error: failed to read forward kmer on line: " + std::to_string(line_ctr));
         }
-        if(fwd_kmer.length() != KMER_SIZE)
+        if(kmer.length() != KMER_SIZE)
         {
-            throw std::runtime_error("Error: forward kmer not "+std::to_string(KMER_SIZE)+" bases on line: " + std::to_string(line_ctr) + ":"+fwd_kmer);
-        }
-
-        ifs >> rev_kmer;
-        if(ifs.fail())
-        {
-            throw std::runtime_error("Error: failed to read reverse kmer on line: " + std::to_string(line_ctr));
-        }
-        if(rev_kmer.length() != KMER_SIZE)
-        {
-            throw std::runtime_error("Error: reverse kmer not "+std::to_string(KMER_SIZE)+" bases on line: " + std::to_string(line_ctr) + ":"+fwd_kmer);
+            throw std::runtime_error("Error: forward kmer not "+std::to_string(KMER_SIZE)+" bases on line: " + std::to_string(line_ctr) + ":"+kmer);
         }
 
         ifs >> count;
@@ -73,13 +63,13 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
         //filter out low coverage kmers
         if(count < minKmerCount) continue;
 
-        //fwd_kmer should be canonical already
-        if(makeCanonical(fwd_kmer))
+        //kmer should be canonical already
+        if(makeCanonical(kmer))
         {
-            throw std::runtime_error("Error: fwd_kmer on line: " + std::to_string(line_ctr) + " was not canonical");
+            throw std::runtime_error("Error: kmer on line: " + std::to_string(line_ctr) + " was not canonical");
         }
 
-        kmer_set.emplace( fwd_kmer );
+        kmer_set.emplace( kmer );
     }
 
     ifs.close();

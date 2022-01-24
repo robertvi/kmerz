@@ -32,4 +32,4 @@ with open(input_file) as f:
             kmer_count[kmer] += 1
 
 for kmer in kmer_count:
-    print(kmer + ' ' + reverse_complement(kmer) + ' ' + str(kmer_count[kmer]))
+    print(kmer + ' ' + str(kmer_count[kmer]))

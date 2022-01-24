@@ -69,8 +69,7 @@ if __name__ == "__main__":
         for line in f:
             column = line.strip().split()
             kmer = column[0]
-            rev = column[1]
-            count = int(column[2])
+            count = int(column[1])
 
             if count < min_count: continue
 
