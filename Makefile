@@ -1,7 +1,7 @@
 TARGET ?= kmerz
 SRC_DIRS ?= ./src
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
+SRCS := ./src/config.cpp ./src/kmerz.cpp ./src/main.cpp
 OBJS := $(addsuffix .o,$(basename $(SRCS)))
 DEPS := $(OBJS:.o=.d)
 
