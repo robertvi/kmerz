@@ -25,7 +25,7 @@ kmer_posn = defaultdict(list)
 posn = 0
 for identifier,sequence,quality in generate_sequences(input_file1):
 	for i,kmer in enumerate(generate_kmers(sequence,kmersize)):
-		rev = reverse_compliment(kmer)
+		rev = reverse_complement(kmer)
 		if rev < kmer: kmer = rev
 		kmer_posn[kmer].append(posn+i)
 
@@ -35,7 +35,7 @@ for identifier,sequence,quality in generate_sequences(input_file1):
 posn = 0
 for identifier,sequence,quality in generate_sequences(input_file2):
 	for i,kmer in enumerate(generate_kmers(sequence,kmersize)):
-		rev = reverse_compliment(kmer)
+		rev = reverse_complement(kmer)
 		if rev < kmer: kmer = rev
 		if not kmer in kmer_posn: continue
 

@@ -27,9 +27,9 @@ with open(input_file) as f:
 
         for kmer in generate_kmers(sequence,kmer_size):
             if 'N' in kmer: continue
-            rev = reverse_compliment(kmer)
+            rev = reverse_complement(kmer)
             if rev < kmer: kmer = rev
             kmer_count[kmer] += 1
 
 for kmer in kmer_count:
-    print(kmer + ' ' + reverse_compliment(kmer) + ' ' + str(kmer_count[kmer]))
+    print(kmer + ' ' + reverse_complement(kmer) + ' ' + str(kmer_count[kmer]))

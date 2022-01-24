@@ -28,7 +28,7 @@ def generate_kmers(seq,kmer_size):
     for i in range(0,seqlen-kmer_size+1):
         yield seq[i:i+kmer_size]
 
-def reverse_compliment(kmer):
+def reverse_complement(kmer):
     '''
     return reverse complement of the kmer
     only 'ATCGN' are considered legitimate bases

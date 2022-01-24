@@ -36,7 +36,7 @@ def extend_sequence(seq,kmer_counts):
         kmer = seq + base
 
         #ensure we only look up canonical kmers
-        rev = reverse_compliment(kmer)
+        rev = reverse_complement(kmer)
         if rev < kmer: kmer = rev
 
         if kmer in kmer_counts:
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         contig = walk_forwards(contig,kmer_length,kmer_counts)
 
         #reverse compliment the contig to allow walking backwards
-        contig = reverse_compliment(contig)
+        contig = reverse_complement(contig)
 
         #walk the (now reversed) contig forward through the kmer graph again
         contig = walk_forwards(contig,kmer_length,kmer_counts)

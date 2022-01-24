@@ -58,7 +58,7 @@ for read_counter in range(reads):
 
     #switch 50% to the reverse strand
     if random.random() < prob_revcomp:
-        read = reverse_compliment(read)
+        read = reverse_complement(read)
 
     #split read into a list of bases for ease of modification
     base_list = [x for x in read]
