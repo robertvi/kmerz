@@ -6,7 +6,9 @@
 
 library(ggplot2)
 
-df = read.table("10k_31mer_counts",header=F,sep=" ",col.names=c("kmer","count"))
+args = commandArgs(trailingOnly=TRUE)
+
+df = read.table(args[1],header=F,sep=" ",col.names=c("kmer","count"))
 
 ggplot(df, aes(x=count)) +
   geom_histogram(binwidth=1)

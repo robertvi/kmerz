@@ -12,6 +12,3 @@ export PATH=${KMERZDIR}/test:${PATH}
 
 #test python prototype pipeline
 test_assemble_10k_random.sh
-
-#generate test dataset for kmerz assembler
-generate_kmerz_test_data.sh

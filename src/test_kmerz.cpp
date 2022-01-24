@@ -5,6 +5,7 @@
 
 using namespace kmerz;
 
+//ten random sequences 100 bases long
 std::vector<std::string> test_genomes =
 {
 "GTCTCAAAGACCGTTGCTGCTATAGGTTCACACGGACGCCATGGTCGCAGCCGCGTTCCAAGCCAGCCGCTATTGCTTATTATCCGCGGCGAACCGTATT",
@@ -19,7 +20,8 @@ std::vector<std::string> test_genomes =
 "CTACAAAATTGAACCTGGCCGTCAGATAATAAAGGAAAAAACTGTTCGGCGCTATATGTAGAAGATTATACGAGCAATGGGCAGGTACCACAGCGGCGCC"
 };
 
-std::vector<std::string> test_list =
+//21 random kmers
+std::vector<std::string> test_kmers =
 {
 "CAGCATTATGAATGAACGAAAGTGTGGGCCG",
 "TCCTAGTTCTTTGTCTCGACATAATGCGACG",
@@ -46,6 +48,7 @@ std::vector<std::string> test_list =
 
 void testUtilityFunctions()
 {
+    //uncomment to verify that tes failures are reported by the build_and_test.sh script
     //assert(reverseComplement("A") == "XYZ");
 
     assert(reverseComplement("A") == "T");
@@ -60,16 +63,16 @@ void testUtilityFunctions()
     assert(reverseComplement("AAGGTTCC") == "GGAACCTT");
     assert(reverseComplement("TGCATGCA") == "TGCATGCA");
 
-    for(int i=0; i<test_list.size(); i++)
+    for(int i=0; i<test_kmers.size(); i++)
     {
-        std::string seq = test_list[i];
+        std::string seq = test_kmers[i];
 
         assert(reverseComplement(reverseComplement(seq)) == seq);
     }
 
-    for(int i=0; i<test_list.size(); i++)
+    for(int i=0; i<test_kmers.size(); i++)
     {
-        std::string seq1 = test_list[i];
+        std::string seq1 = test_kmers[i];
         std::string seq2 = reverseComplement(seq1);
 
         if(seq1.compare(seq2) > 0)
@@ -123,12 +126,12 @@ void testExtendSuffix()
     std::string bases = "ATCG";
     std::vector< std::string > kmer_list;
 
-    for(int i=0; i<test_list.size(); i++)
+    for(int i=0; i<test_kmers.size(); i++)
     {
         for(int j=0; j<4; j++)
         {
             kmer_list.clear();
-            std::string base_seq = test_list[i];
+            std::string base_seq = test_kmers[i];
             kmer_list.push_back(base_seq);
 
             std::string seed_seq = base_seq.substr(1);

@@ -26,7 +26,11 @@ namespace kmerz
             //report only unique possible extensions of the seed string
             char extendSuffix(std::string);
 
+            //print as FASTA format
             void printToStdout(std::vector< std::string >&,int=80);
+
+            //print in flat format, one sequence per line
+            void printToStdoutFlat(std::vector< std::string >&);
         private:
 
             //canonical kmers as strings

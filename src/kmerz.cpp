@@ -79,7 +79,7 @@ void EulerGraph::printToStdout(std::vector< std::string >&contig_list,int maxlen
 {
     for(int i=0; i<contig_list.size(); i++)
     {
-        std::cout << ">contig" + std::to_string(i) << std::endl;
+        std::cout << ">seq" + std::to_string(i) << std::endl;
 
         int j=0;
         while(j < contig_list.at(i).size())
@@ -87,6 +87,14 @@ void EulerGraph::printToStdout(std::vector< std::string >&contig_list,int maxlen
             std::cout << contig_list.at(i).substr(j,maxlen) << std::endl;
             j += maxlen;
         }
+    }
+}
+
+void EulerGraph::printToStdoutFlat(std::vector< std::string >&contig_list)
+{
+    for(int i=0; i<contig_list.size(); i++)
+    {
+        std::cout << "seq" + std::to_string(i) << " " << contig_list.at(i) << std::endl;
     }
 }
 

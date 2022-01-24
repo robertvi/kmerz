@@ -15,6 +15,9 @@ generate_reads.py ${BASENAME}.flat 20000 100 0.01 0.01 0.5 > ${BASENAME}_reads.f
 #count 23mers in the reads
 count_kmers.py ${BASENAME}_reads.flat 23 > ${BASENAME}_counts
 
+#plot kmer frequency histogram
+plot_kmer_histogram.R ${BASENAME}_counts
+
 #assemble the kmers into contigs filtering out kmers with a count below 30
 assemble_kmers.py --kmer-counts=${BASENAME}_counts --min-count=30 > ${BASENAME}_assembly.flat
 

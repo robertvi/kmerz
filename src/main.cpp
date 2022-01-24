@@ -17,7 +17,7 @@ int main(int argc,char**argv)
     euler.generateContigs(contig_list);
 
     //print to stdout as fasta format
-    euler.printToStdout(contig_list);
+    euler.printToStdoutFlat(contig_list);
 
     return 0;
 }
