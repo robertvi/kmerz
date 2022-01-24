@@ -22,10 +22,8 @@ count_kmers.py ${BASENAME}_reads.flat 31 > ${BASENAME}_31mer_counts
 kmerz -i ${BASENAME}_31mer_counts > ${BASENAME}_assembly.flat
 
 #generate coordinates for a dot plot comparing kmer positions in original and assembled sequence
-#compare using 10mer
-compare_kmers.py ${BASENAME}_assembly.flat ${BASENAME}.flat 10 > ${BASENAME}_dots
+#compare using 20mers
+compare_kmers.py ${BASENAME}_assembly.flat ${BASENAME}.flat 20 > ${BASENAME}_dots
 
 #generate the dot plot using ggplot
-
-
-cd - > /dev/null
+make_dot_plot.R ${BASENAME}_dots ${BASENAME}_dotplot.png
