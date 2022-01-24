@@ -6,6 +6,6 @@ kmerz is a currently able to assemble simulated reads from simple randomly gener
 
 ## Requirements
 
-C++/11 compiler and Python 3
+C++11 compiler (tested with g++ 9.3.0) and Python 3
 
 ## Installation
