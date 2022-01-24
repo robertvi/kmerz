@@ -9,6 +9,7 @@ const std::string bases = "ATCG";
 namespace kmerz
 {
 
+//load kmer sequences from a vector of strings, useful for testing
 EulerGraph::EulerGraph(std::vector< std::string >&input_list)
 {
     for(auto it=input_list.begin(); it!=input_list.end(); it++)
@@ -20,9 +21,7 @@ EulerGraph::EulerGraph(std::vector< std::string >&input_list)
 }
 
 //load kmer sequences and counts from file
-//format is kmer sequence, reverse complement of kmer sequence (ignored) and kmer count
-//separated by spaces
-//only the first of the two kmer sequences is used, converted to canonical if not already
+//format is kmer sequence and kmer count separated by a space
 //count is only used for simple min-mount filtering then discarded
 EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
 {
@@ -63,7 +62,7 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
         //filter out low coverage kmers
         if(count < minKmerCount) continue;
 
-        //kmer should be canonical already
+        //kmer should be canonical already if created by count_kmers.py
         if(makeCanonical(kmer))
         {
             throw std::runtime_error("Error: kmer on line: " + std::to_string(line_ctr) + " was not canonical");
@@ -75,6 +74,7 @@ EulerGraph::EulerGraph(const std::string&inputFile,int minKmerCount)
     ifs.close();
 }
 
+//print assembled contigs to stdout using fasta format
 void EulerGraph::printToStdout(std::vector< std::string >&contig_list,int maxlen)
 {
     for(int i=0; i<contig_list.size(); i++)
@@ -90,6 +90,7 @@ void EulerGraph::printToStdout(std::vector< std::string >&contig_list,int maxlen
     }
 }
 
+//print assembled contigs to stdout using simple flat format
 void EulerGraph::printToStdoutFlat(std::vector< std::string >&contig_list)
 {
     for(int i=0; i<contig_list.size(); i++)
@@ -135,8 +136,10 @@ char EulerGraph::extendSuffix(std::string suffix)
         }
     }
 
+    //return unique extension
     if(next_base != 'X' && unique == true) return next_base;
 
+    //no unique extension found
     return 'X';
 }
 
@@ -150,9 +153,10 @@ std::string EulerGraph::walkForwards(std::string kmer)
     {
         kmer.assign(kmer.substr(1));
 
+        //returns only unique extensions
         char next_base = extendSuffix(kmer);
 
-        //stop if no valid extension found
+        //stop if no unique extension found
         if(next_base == 'X') return contig;
 
         //extend contig and kmer with next base
@@ -189,6 +193,7 @@ void EulerGraph::generateContigs(std::vector< std::string >&contig_list)
         //join into final contig
         std::string contig = reverseComplement(rev_contig) + seed + fwd_contig;
 
+        //build list of contigs
         contig_list.push_back(contig);
     }
 }
