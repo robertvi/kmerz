@@ -23,13 +23,29 @@ Optional: make, R, ggplot2
     #or to also build and run the tests of the main binary
     ./build_and_test.sh
 
+The kmerz binary is built in the root folder of the repo. The Python scripts can be run from the scripts folder.
+
 ## Testing
+The tests can be run from the repo root folder, and create a new subfolder called tmp to put their output into.
 
     #to test the Python utilities
     ./test/test_python_scripts.sh
 
     #to assemble a simple test genome using kmerz
     ./test/test_kmers.sh
+
+## Running kmerz
+
+    #print out help information
+    ./kmerz -h
+
+    #assemble contigs from a file containing kmer count information
+    ./kmerz -i kmer_counts > assembled_contigs
+
+    #apply minimum count filtering, ignoring kmers below a frequency of 10
+    ./kmerz -i kmer_counts -m 10 > filtered_assembly
+
+See the test/test_kmers.sh script for an example of how to generate a simulated genome sequence, reads and kmer counts. The format of the kmer counts file is one kmer per line, the integer count following the kmer sequence separated by a space. See the output of the test scripts for examples. The sequence files are current output in a flat format, with one sequence per line with the sequence identifier preceeding the sequence separated by a space. The Python script folder contains utilities for converting between this flat format and the standard fasta and fastq formats.
 
 ## De Bruijn graph de novo assembly
 So called next generation sequencing machines cannot read long stretches of DNA, instead the genome is broken into short fragments which then produce "reads" of 100 to 250 bases. The problem of reassembling the original genome sequence from these short reads is known as de novo genome assembly. The obvious approach of looking for all the possible overlaps between the reads is not feasible due to the large number of reads generated. All the pairwise comparisons would take too long to perform, although this type of approach, called overlap layout consensus genome assembly, was feasible with the first generation of sequencing technologies (Sanger sequencing of DNA cloned into bacteria).
