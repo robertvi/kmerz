@@ -19,5 +19,6 @@ int main(int argc,char**argv)
     //print to stdout as fasta format
     euler.printToStdoutFlat(contig_list);
 
+    //success
     return 0;
 }
