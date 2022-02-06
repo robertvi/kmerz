@@ -9,3 +9,6 @@
 /test_kmerz
 /out
 /err
+.cproject
+.project
+.pydevproject
