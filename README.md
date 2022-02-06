@@ -25,7 +25,9 @@ Optional: cmake, make, R, ggplot2
     ./build_and_test.sh
     
     #or to build using cmake
-    cmake .
+    mkdir build && cd build
+    cmake ..
+    make
 
 The kmerz binary is built in the root folder of the repo. The Python scripts can be run from the scripts folder.
 
