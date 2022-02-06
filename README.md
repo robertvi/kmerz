@@ -18,13 +18,13 @@ Optional: cmake, make, R, ggplot2
     git clone https://github.com/robertvi/kmerz.git
     cd kmerz
 
-    #build the main binary
-    make -f plain_makefile
+    #build the main binary using the plain makefile
+    make
 
-    #or to also build and run the tests of the main binary
+    #OR to build and test without using make
     ./build_and_test.sh
     
-    #or to build using cmake
+    #OR to build using cmake
     mkdir build && cd build
     cmake ..
     make
