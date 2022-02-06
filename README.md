@@ -9,7 +9,8 @@ The intension is to gradually extend the program to include more realistic opera
 ## Requirements
 
 C++11 compiler (tested with g++ 9.3.0) and Python 3.
-Optional: make, R, ggplot2
+
+Optional: cmake, make, R, ggplot2
 
 ## Installation
 
@@ -18,10 +19,13 @@ Optional: make, R, ggplot2
     cd kmerz
 
     #build the main binary
-    make
+    make -f plain_makefile
 
     #or to also build and run the tests of the main binary
     ./build_and_test.sh
+    
+    #or to build using cmake
+    cmake .
 
 The kmerz binary is built in the root folder of the repo. The Python scripts can be run from the scripts folder.
 
